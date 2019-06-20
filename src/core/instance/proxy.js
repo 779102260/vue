@@ -6,13 +6,15 @@ import { warn, makeMap, isNative } from '../util/index'
 let initProxy
 
 if (process.env.NODE_ENV !== 'production') {
+  // 定义了允许的全局对象类型
   const allowedGlobals = makeMap(
     'Infinity,undefined,NaN,isFinite,isNaN,' +
     'parseFloat,parseInt,decodeURI,decodeURIComponent,encodeURI,encodeURIComponent,' +
     'Math,Number,Date,Array,Object,Boolean,String,RegExp,Map,Set,JSON,Intl,' +
     'require' // for Webpack/Browserify
   )
-
+  
+  // 
   const warnNonPresent = (target, key) => {
     warn(
       `Property or method "${key}" is not defined on the instance but ` +
@@ -24,6 +26,7 @@ if (process.env.NODE_ENV !== 'production') {
     )
   }
 
+  // data 里的数据不允许以$或_开头
   const warnReservedPrefix = (target, key) => {
     warn(
       `Property "${key}" must be accessed with "$data.${key}" because ` +
@@ -37,6 +40,7 @@ if (process.env.NODE_ENV !== 'production') {
   const hasProxy =
     typeof Proxy !== 'undefined' && isNative(Proxy)
 
+  // 自定义按键名 keyCodes，不可与vue一些内置的名称同名
   if (hasProxy) {
     const isBuiltInModifier = makeMap('stop,prevent,self,ctrl,shift,alt,meta,exact')
     config.keyCodes = new Proxy(config.keyCodes, {
@@ -52,6 +56,10 @@ if (process.env.NODE_ENV !== 'production') {
     })
   }
 
+  // 操作vue拦截
+  // in操作
+  // Reflect.has()
+  // with
   const hasHandler = {
     has (target, key) {
       const has = key in target
@@ -75,11 +83,12 @@ if (process.env.NODE_ENV !== 'production') {
     }
   }
 
+  // vm._renderProxy上挂载一个proxy对象，用作拦截操作
   initProxy = function initProxy (vm) {
     if (hasProxy) {
       // determine which proxy handler to use
       const options = vm.$options
-      const handlers = options.render && options.render._withStripped
+      const handlers = options.render && options.render._withStripped // _withStripped 测试代码才为true
         ? getHandler
         : hasHandler
       vm._renderProxy = new Proxy(vm, handlers)

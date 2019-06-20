@@ -1,3 +1,8 @@
+/**
+ * Vue注入外层方法
+ */
+
+// 类型检查工具
 /* @flow */
 
 import config from '../config'
@@ -19,7 +24,7 @@ import {
 } from '../util/index'
 
 export function initGlobalAPI (Vue: GlobalAPI) {
-  // config
+  // 1. 注入config属性（全局配置项） 只读
   const configDef = {}
   configDef.get = () => config
   if (process.env.NODE_ENV !== 'production') {
@@ -31,7 +36,7 @@ export function initGlobalAPI (Vue: GlobalAPI) {
   }
   Object.defineProperty(Vue, 'config', configDef)
 
-  // exposed util methods.
+  // 2. 工具函数
   // NOTE: these are not considered part of the public API - avoid relying on
   // them unless you are aware of the risk.
   Vue.util = {
@@ -41,16 +46,18 @@ export function initGlobalAPI (Vue: GlobalAPI) {
     defineReactive
   }
 
+  // 3. 常用的一些函数
   Vue.set = set
   Vue.delete = del
   Vue.nextTick = nextTick
 
-  // 2.6 explicit observable API
+  // 4. explicit observable API
   Vue.observable = <T>(obj: T): T => {
     observe(obj)
     return obj
   }
 
+  // 5. options
   Vue.options = Object.create(null)
   ASSET_TYPES.forEach(type => {
     Vue.options[type + 's'] = Object.create(null)
@@ -62,8 +69,12 @@ export function initGlobalAPI (Vue: GlobalAPI) {
 
   extend(Vue.options.components, builtInComponents)
 
+  // 6. use方法
   initUse(Vue)
+  // 7. mixin方法
   initMixin(Vue)
+  // 8. extend方法
   initExtend(Vue)
+  
   initAssetRegisters(Vue)
 }

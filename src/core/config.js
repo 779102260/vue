@@ -35,6 +35,7 @@ export type Config = {
   _lifecycleHooks: Array<string>;
 };
 
+// vue全局配置项 [https://cn.vuejs.org/v2/api/#%E5%85%A8%E5%B1%80%E9%85%8D%E7%BD%AE]
 export default ({
   /**
    * Option merge strategies (used in core/util/options)

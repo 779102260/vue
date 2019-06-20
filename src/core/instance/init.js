@@ -15,20 +15,22 @@ let uid = 0
 export function initMixin (Vue: Class<Component>) {
   Vue.prototype._init = function (options?: Object) {
     const vm: Component = this
-    // a uid
+    // a uid 每次实例有唯一标记_uid
     vm._uid = uid++
 
     let startTag, endTag
-    /* istanbul ignore if */
+    /* istanbul ignore if 用于非生产模式时浏览器进行性能分析，在全局配置上开启*/
+    // 如何工作的 ??
     if (process.env.NODE_ENV !== 'production' && config.performance && mark) {
       startTag = `vue-perf-start:${vm._uid}`
       endTag = `vue-perf-end:${vm._uid}`
       mark(startTag)
     }
 
-    // a flag to avoid this being observed
+    // a flag to avoid this being observed 避免被监听
     vm._isVue = true
-    // merge options
+    // merge options options处理
+    // ???
     if (options && options._isComponent) {
       // optimize internal component instantiation
       // since dynamic options merging is pretty slow, and none of the
@@ -42,6 +44,7 @@ export function initMixin (Vue: Class<Component>) {
       )
     }
     /* istanbul ignore else */
+    // 初始化代理
     if (process.env.NODE_ENV !== 'production') {
       initProxy(vm)
     } else {
@@ -90,8 +93,13 @@ export function initInternalComponent (vm: Component, options: InternalComponent
   }
 }
 
+/**
+ * 
+ * @param {*} Ctor Vue
+ */
 export function resolveConstructorOptions (Ctor: Class<Component>) {
   let options = Ctor.options
+  // super来判断该类是否是Vue的子类
   if (Ctor.super) {
     const superOptions = resolveConstructorOptions(Ctor.super)
     const cachedSuperOptions = Ctor.superOptions

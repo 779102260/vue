@@ -34,7 +34,7 @@ const sharedPropertyDefinition = {
   get: noop,
   set: noop
 }
-
+// proxy(vm, `_data`, key)
 export function proxy (target: Object, sourceKey: string, key: string) {
   sharedPropertyDefinition.get = function proxyGetter () {
     return this[sourceKey][key]

@@ -19,6 +19,7 @@ import { patch } from './patch'
 import platformDirectives from './directives/index'
 import platformComponents from './components/index'
 
+// TODO
 // install platform specific utils
 Vue.config.mustUseProp = mustUseProp
 Vue.config.isReservedTag = isReservedTag
@@ -44,6 +45,7 @@ Vue.prototype.$mount = function (
 
 // devtools global hook
 /* istanbul ignore next */
+// vue devtool 相关
 if (inBrowser) {
   setTimeout(() => {
     if (config.devtools) {

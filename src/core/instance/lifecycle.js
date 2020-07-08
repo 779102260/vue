@@ -32,7 +32,7 @@ export function setActiveInstance(vm: Component) {
 export function initLifecycle (vm: Component) {
   const options = vm.$options
 
-  // locate first non-abstract parent
+  // locate first non-abstract parent [TODO:?]
   let parent = options.parent
   if (parent && !options.abstract) {
     while (parent.$options.abstract && parent.$parent) {
@@ -64,6 +64,8 @@ export function lifecycleMixin (Vue: Class<Component>) {
     vm._vnode = vnode
     // Vue.prototype.__patch__ is injected in entry points
     // based on the rendering backend used.
+    // 调用__patch__挂载
+    // 如果有父节点在挂到父节点上，否则挂在el上
     if (!prevVnode) {
       // initial render
       vm.$el = vm.__patch__(vm.$el, vnode, hydrating, false /* removeOnly */)
@@ -144,6 +146,7 @@ export function mountComponent (
   hydrating?: boolean
 ): Component {
   vm.$el = el
+  // part1. 如果没有render函数，创建一个空的
   if (!vm.$options.render) {
     vm.$options.render = createEmptyVNode
     if (process.env.NODE_ENV !== 'production') {
@@ -164,10 +167,12 @@ export function mountComponent (
       }
     }
   }
+  // part2. 调用生命周期 beforeMount
   callHook(vm, 'beforeMount')
 
   let updateComponent
   /* istanbul ignore if */
+  // part3. 性能埋点
   if (process.env.NODE_ENV !== 'production' && config.performance && mark) {
     updateComponent = () => {
       const name = vm._name
@@ -194,6 +199,7 @@ export function mountComponent (
   // we set this to vm._watcher inside the watcher's constructor
   // since the watcher's initial patch may call $forceUpdate (e.g. inside child
   // component's mounted hook), which relies on vm._watcher being already defined
+  // part4. 加入watcher，并调用_render方法创建vnode，然后调用_update执行挂载dom TODO
   new Watcher(vm, updateComponent, noop, {
     before () {
       if (vm._isMounted && !vm._isDestroyed) {
@@ -205,6 +211,7 @@ export function mountComponent (
 
   // manually mounted instance, call mounted on self
   // mounted is called for render-created child components in its inserted hook
+  // part5. 调用生命周期 mounted
   if (vm.$vnode == null) {
     vm._isMounted = true
     callHook(vm, 'mounted')
@@ -340,6 +347,7 @@ export function callHook (vm: Component, hook: string) {
   const info = `${hook} hook`
   if (handlers) {
     for (let i = 0, j = handlers.length; i < j; i++) {
+      // 调用并处理错误情况 [TODO:]
       invokeWithErrorHandling(handlers[i], vm, null, vm, info)
     }
   }

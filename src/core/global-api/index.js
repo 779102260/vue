@@ -69,7 +69,7 @@ export function initGlobalAPI (Vue: GlobalAPI) {
 
   extend(Vue.options.components, builtInComponents)
 
-  // 6. use方法
+  // 6. use方法 [Doing]
   initUse(Vue)
   // 7. mixin方法
   initMixin(Vue)

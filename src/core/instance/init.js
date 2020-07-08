@@ -15,59 +15,68 @@ let uid = 0
 export function initMixin (Vue: Class<Component>) {
   Vue.prototype._init = function (options?: Object) {
     const vm: Component = this
-    // a uid 每次实例有唯一标记_uid
+    // uid 每次实例有唯一标记_uid
     vm._uid = uid++
 
+    // part1. 新能分析 [TODO:]
     let startTag, endTag
-    /* istanbul ignore if 用于非生产模式时浏览器进行性能分析，在全局配置上开启*/
-    // 如何工作的 ??
     if (process.env.NODE_ENV !== 'production' && config.performance && mark) {
+      /* 用于非生产模式时浏览器进行性能分析，在全局配置上开启*/
       startTag = `vue-perf-start:${vm._uid}`
       endTag = `vue-perf-end:${vm._uid}`
       mark(startTag)
     }
 
-    // a flag to avoid this being observed 避免被监听
-    vm._isVue = true
-    // merge options options处理
-    // ???
+    vm._isVue = true // _isVue标记：用于避免被监听 [TODO:]
+    // part2. 获取合并options
     if (options && options._isComponent) {
-      // optimize internal component instantiation
-      // since dynamic options merging is pretty slow, and none of the
-      // internal component options needs special treatment.
+      // 内部组件处理优化，因为mergeOptions似乎有性能问题 [TODO:]
       initInternalComponent(vm, options)
     } else {
+      // mergeOptions [TODO:]
       vm.$options = mergeOptions(
+        // 如果是通过Vue.extend创建的子类，那么检查options是否需要更新 [TODO:]
         resolveConstructorOptions(vm.constructor),
         options || {},
         vm
       )
     }
     /* istanbul ignore else */
-    // 初始化代理
+    // part3. 一系列初始化
+    // part3-1 代理：实例上添加个_renderProxy方法 [TODO:]
     if (process.env.NODE_ENV !== 'production') {
       initProxy(vm)
     } else {
       vm._renderProxy = vm
     }
-    // expose real self
+    // expose real self [TODO:这类操作有什么用]
     vm._self = vm
+    // part3-2 生命周期：添加一些相关属性 [TODO:]
     initLifecycle(vm)
+    // part3-3 事件 [TODO:]
     initEvents(vm)
+    // part3-4 render: 添加$createElement等方法 [TODO:]
     initRender(vm)
+    // 触发生命周期：beforeCreate [TODO:]
     callHook(vm, 'beforeCreate')
+    // part3-5 inject: 拿到inject数据 [TODO:]
     initInjections(vm) // resolve injections before data/props
+    // part3-6 state: props -> methods -> data -> computed -> watch [TODO:]
     initState(vm)
+    // part3-7 provide：[TODO:]
     initProvide(vm) // resolve provide after data/props
+    // 触发生命周期：created [TODO:]
     callHook(vm, 'created')
 
     /* istanbul ignore if */
+    // 性能分析相关
     if (process.env.NODE_ENV !== 'production' && config.performance && mark) {
       vm._name = formatComponentName(vm, false)
       mark(endTag)
       measure(`vue ${vm._name} init`, startTag, endTag)
     }
 
+    // 如果有el挂载到目标
     if (vm.$options.el) {
       vm.$mount(vm.$options.el)
     }
@@ -94,22 +103,26 @@ export function initInternalComponent (vm: Component, options: InternalComponent
 }
 
 /**
- * 
+ * 主要是解构获取构造器的options
+ * 主要是其中有对于如果构造器也是extend添加的时候应该怎么处理，以及它们的构造器如果有更新扩展，需要及时更新到下级
  * @param {*} Ctor Vue
  */
 export function resolveConstructorOptions (Ctor: Class<Component>) {
   let options = Ctor.options
-  // super来判断该类是否是Vue的子类
+  // 有super属性，说明Ctor是Vue.extend构建的子类
   if (Ctor.super) {
+    // 递归解构父级组件，获取所有上级的options合集
     const superOptions = resolveConstructorOptions(Ctor.super)
+    // 父级组件的options
     const cachedSuperOptions = Ctor.superOptions
+    // 如果父级组件被改变过，更新superOptions
     if (superOptions !== cachedSuperOptions) {
       // super option changed,
       // need to resolve new options.
       Ctor.superOptions = superOptions
       // check if there are any late-modified/attached options (#4976)
+      // 检查是否有任何后期修改/附加选项，有则更新扩展的options
       const modifiedOptions = resolveModifiedOptions(Ctor)
-      // update base extend options
       if (modifiedOptions) {
         extend(Ctor.extendOptions, modifiedOptions)
       }

@@ -16,17 +16,17 @@ import { lifecycleMixin } from './lifecycle'
 import { warn } from '../util/index'
 
 function Vue (options) {
-  // 不让直接调用 Vue()
+  // 不让直接调用Vue()，应该new Vue()
   if (process.env.NODE_ENV !== 'production' &&
     !(this instanceof Vue)
   ) {
     warn('Vue is a constructor and should be called with the `new` keyword')
   }
-  // ** 实例化时调用这个方法
+  // *实例化时调用这个方法
   this._init(options)
 }
 
-// 之所以用多个方法在Vue原型上加方法，是为了拆分Vue这个大类，模块清晰，简单明了。
+// 拆分了Vue这个大类，模块清晰，简单明了
 initMixin(Vue)
 stateMixin(Vue)
 eventsMixin(Vue)

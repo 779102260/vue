@@ -14,7 +14,7 @@ if (process.env.NODE_ENV !== 'production') {
     'require' // for Webpack/Browserify
   )
   
-  // 
+  // 模板中使用了未定义的data / prop / computed
   const warnNonPresent = (target, key) => {
     warn(
       `Property or method "${key}" is not defined on the instance but ` +

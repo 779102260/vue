@@ -19,10 +19,11 @@ Vue.prototype.$mount = function (
   el?: string | Element,
   hydrating?: boolean
 ): Component {
+  // step1. 查找挂载的el节点
   el = el && query(el)
 
-  /* istanbul ignore if */
   if (el === document.body || el === document.documentElement) {
+    // el不可以是html或body
     process.env.NODE_ENV !== 'production' && warn(
       `Do not mount Vue to <html> or <body> - mount to normal elements instead.`
     )
@@ -30,9 +31,12 @@ Vue.prototype.$mount = function (
   }
 
   const options = this.$options
-  // resolve template/el and convert to render function
+  // step2. 无render则将模板提取出来，提取为dom节点
+  // vue代码需要的是render函数，template是为了方便开发写的，所以这里需要将template转换为render函数
   if (!options.render) {
     let template = options.template
+    // step2-1. 配置了template
+    // 写法1：template写在html里，则这里的template是对应的dom选择器
     if (template) {
       if (typeof template === 'string') {
         if (template.charAt(0) === '#') {
@@ -45,6 +49,7 @@ Vue.prototype.$mount = function (
             )
           }
         }
+      // 写法2：template是dom节点
       } else if (template.nodeType) {
         template = template.innerHTML
       } else {
@@ -53,15 +58,18 @@ Vue.prototype.$mount = function (
         }
         return this
       }
+    // step2-2. 未配置template，默认为el元素即为模板
     } else if (el) {
       template = getOuterHTML(el)
     }
+    // step3. 将template编译成render函数（后续单独讲） TODO
     if (template) {
       /* istanbul ignore if */
+      // 性能分析：编译花费的时间
       if (process.env.NODE_ENV !== 'production' && config.performance && mark) {
         mark('compile')
       }
-
+      // 编译过程 TODO
       const { render, staticRenderFns } = compileToFunctions(template, {
         outputSourceRange: process.env.NODE_ENV !== 'production',
         shouldDecodeNewlines,
@@ -79,6 +87,7 @@ Vue.prototype.$mount = function (
       }
     }
   }
+  // step4. 调用runtime里的挂载方法进行挂载
   return mount.call(this, el, hydrating)
 }
 

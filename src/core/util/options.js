@@ -269,6 +269,7 @@ const defaultStrat = function (parentVal: any, childVal: any): any {
 
 /**
  * Validate component names
+ * 检查 components 配置的组件名称否规范、是否已被占用
  */
 function checkComponents (options: Object) {
   for (const key in options.components) {
@@ -276,13 +277,19 @@ function checkComponents (options: Object) {
   }
 }
 
+/**
+ * 检查组件的名称是否规范、是否已被占用
+ * @param {string} name 组件名
+ */
 export function validateComponentName (name: string) {
+  // 命名规范
   if (!new RegExp(`^[a-zA-Z][\\-\\.0-9_${unicodeRegExp.source}]*$`).test(name)) {
     warn(
       'Invalid component name: "' + name + '". Component names ' +
       'should conform to valid custom element name in html5 specification.'
     )
   }
+  // 一些已被占用的组件名（内置的和保留的），同名报错
   if (isBuiltInTag(name) || config.isReservedTag(name)) {
     warn(
       'Do not use built-in or reserved HTML elements as component ' +
@@ -294,23 +301,37 @@ export function validateComponentName (name: string) {
 /**
  * Ensure all props option syntax are normalized into the
  * Object-based format.
+ * 格式化props
+ * 因 prop 有多种写法，通过它都格式化成一种格式 => 下面的方式三
  */
 function normalizeProps (options: Object, vm: ?Component) {
   const props = options.props
   if (!props) return
   const res = {}
   let i, val, name
+  // 方式1 props: ['name', ...]
   if (Array.isArray(props)) {
     i = props.length
     while (i--) {
       val = props[i]
       if (typeof val === 'string') {
-        name = camelize(val)
+        name = camelize(val) // - 转驼峰写法
         res[name] = { type: null }
       } else if (process.env.NODE_ENV !== 'production') {
         warn('props must be strings when using array syntax.')
       }
     }
+  // 方式二 
+  // props: {
+  //  name: String
+  // }
+  // 方式三
+  // props: {
+  //   name: {
+  //     type: String,
+  //     required: true
+  //   }
+  // }
   } else if (isPlainObject(props)) {
     for (const key in props) {
       val = props[key]
@@ -319,6 +340,7 @@ function normalizeProps (options: Object, vm: ?Component) {
         ? val
         : { type: val }
     }
+  // 其他格式报错
   } else if (process.env.NODE_ENV !== 'production') {
     warn(
       `Invalid value for option "props": expected an Array or an Object, ` +
@@ -331,6 +353,11 @@ function normalizeProps (options: Object, vm: ?Component) {
 
 /**
  * Normalize all injections into Object-based format
+ * 统一 inject 写法
+ * {
+ *  from: 'x',
+ *  ...
+ * }
  */
 function normalizeInject (options: Object, vm: ?Component) {
   const inject = options.inject
@@ -358,6 +385,12 @@ function normalizeInject (options: Object, vm: ?Component) {
 
 /**
  * Normalize raw function directives into object format.
+ * 统一指令写法
+ * {
+ *  bind: fn
+ *  update: fn
+ *  ....
+ * }
  */
 function normalizeDirectives (options: Object) {
   const dirs = options.directives
@@ -390,22 +423,29 @@ export function mergeOptions (
   child: Object,
   vm?: Component
 ): Object {
+  // 开发模式下会校验options.components名称是否规范
   if (process.env.NODE_ENV !== 'production') {
     checkComponents(child)
   }
 
+  // TODO new Vue(options) options还可以是个函数？
   if (typeof child === 'function') {
     child = child.options
   }
 
+  // 格式化props（因多种写法，先统一为一种格式）
   normalizeProps(child, vm)
+  // 格式化inject
   normalizeInject(child, vm)
+  // 格式化指令 
   normalizeDirectives(child)
 
   // Apply extends and mixins on the child options,
   // but only if it is a raw options object that isn't
   // the result of another mergeOptions call.
   // Only merged options has the _base property.
+  // TODO  Vue.options._base = Vue 一般会有_base，不知道什么时候没有
+  // 这里应该用来递归extends和mixins进来的组件，合并option
   if (!child._base) {
     if (child.extends) {
       parent = mergeOptions(parent, child.extends, vm)
@@ -417,6 +457,7 @@ export function mergeOptions (
     }
   }
 
+  // 遍历组件和父组件的options，调用对应选项的合并策略合并成一个
   const options = {}
   let key
   for (key in parent) {
@@ -428,6 +469,7 @@ export function mergeOptions (
     }
   }
   function mergeField (key) {
+    // 依据不同的合并策略进行合并 TODO
     const strat = strats[key] || defaultStrat
     options[key] = strat(parent[key], child[key], vm, key)
   }

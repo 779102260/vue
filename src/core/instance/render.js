@@ -17,12 +17,18 @@ import VNode, { createEmptyVNode } from '../vdom/vnode'
 import { isUpdatingChildComponent } from './lifecycle'
 
 export function initRender (vm: Component) {
+  // _vnode 存放vnode
   vm._vnode = null // the root of the child tree
+  // TODO
   vm._staticTrees = null // v-once cached trees
   const options = vm.$options
+  // $vnode 存放的是父节点vnode TODO 迷惑行为大赏？
   const parentVnode = vm.$vnode = options._parentVnode // the placeholder node in parent tree
+  // TODO
   const renderContext = parentVnode && parentVnode.context
+  // 添加$slots TODO
   vm.$slots = resolveSlots(options._renderChildren, renderContext)
+  // 添加$scopedSlots TODO
   vm.$scopedSlots = emptyObject
   // bind the createElement fn to this instance
   // so that we get proper render context inside it.
@@ -40,6 +46,7 @@ export function initRender (vm: Component) {
   const parentData = parentVnode && parentVnode.data
 
   /* istanbul ignore else */
+  // 添加 $attrs $listeners，并进行监听：当更新子组件时，不可以修改$attrs $listeners TODO
   if (process.env.NODE_ENV !== 'production') {
     defineReactive(vm, '$attrs', parentData && parentData.attrs || emptyObject, () => {
       !isUpdatingChildComponent && warn(`$attrs is readonly.`, vm)

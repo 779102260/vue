@@ -29,10 +29,16 @@ export function setActiveInstance(vm: Component) {
   }
 }
 
+/**
+ * 构建组件实例的父组件链，并添加&初始化一些生命周期相关的属性
+ * @param {*} vm 
+ */
 export function initLifecycle (vm: Component) {
   const options = vm.$options
 
-  // locate first non-abstract parent [TODO:?]
+  // locate first non-abstract parent
+  // 找到父节点中第一个非抽象组件，然后将实例放到在该父节点的$children中
+  // 抽象组件：类似keep-alive不会渲染成dom元素，也不会出现在父组件链中
   let parent = options.parent
   if (parent && !options.abstract) {
     while (parent.$options.abstract && parent.$parent) {
@@ -40,18 +46,25 @@ export function initLifecycle (vm: Component) {
     }
     parent.$children.push(vm)
   }
-
+  // $parent指向第一个非抽象父组件
   vm.$parent = parent
+  // $root指向根节点，没有则指向自身
   vm.$root = parent ? parent.$root : vm
-
+  // $children 包含所有子节点
   vm.$children = []
+  // $refs 初始化
   vm.$refs = {}
-
+  // watcher 实例对象 TODO
   vm._watcher = null
+  // 被keep-alive组件保活的状态 TODO
   vm._inactive = null
+  // keep-alive相关TODO
   vm._directInactive = false
+  // 是否已挂载 TODO
   vm._isMounted = false
+  // 是否已销毁 TODO
   vm._isDestroyed = false
+  // 是否正则销毁 TODO
   vm._isBeingDestroyed = false
 }
 

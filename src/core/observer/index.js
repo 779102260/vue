@@ -43,7 +43,7 @@ export class Observer {
     this.value = value
     this.dep = new Dep()
     this.vmCount = 0
-    def(value, '__ob__', this)
+    def(value, '__ob__', this) // 添加__ob__属性，表示已被观察
     if (Array.isArray(value)) {
       if (hasProto) {
         protoAugment(value, arrayMethods)
@@ -147,6 +147,7 @@ export function defineReactive (
   }
 
   // cater for pre-defined getter/setters
+  // TODO
   const getter = property && property.get
   const setter = property && property.set
   if ((!getter || setter) && arguments.length === 2) {

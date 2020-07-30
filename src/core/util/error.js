@@ -33,6 +33,14 @@ export function handleError (err: Error, vm: any, info: string) {
   }
 }
 
+/**
+ * 调用函数并增加对错误情况的统一处理
+ * @param {*} handler 
+ * @param {*} context 
+ * @param {*} args 
+ * @param {*} vm 
+ * @param {*} info 
+ */
 export function invokeWithErrorHandling (
   handler: Function,
   context: any,
@@ -42,7 +50,9 @@ export function invokeWithErrorHandling (
 ) {
   let res
   try {
+    // 执行函数
     res = args ? handler.apply(context, args) : handler.call(context)
+    // 处理返回结果错误
     if (res && !res._isVue && isPromise(res) && !res._handled) {
       res.catch(e => handleError(e, vm, info + ` (Promise/async)`))
       // issue #9511

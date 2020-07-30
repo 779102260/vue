@@ -102,6 +102,7 @@ export function toNumber (val: string): number | string {
 /**
  * Make a map and return a function for checking if a key
  * is in that map.
+ * 将逗号分隔的字符串解析为一个对象，值都为true，返回一个用于快速判断字符串是不是在这个对象的方法
  */
 export function makeMap (
   str: string,
@@ -119,6 +120,7 @@ export function makeMap (
 
 /**
  * Check if a tag is a built-in tag.
+ * 检查是否时内置的标签（slot component）
  */
 export const isBuiltInTag = makeMap('slot,component', true)
 
@@ -149,6 +151,7 @@ export function hasOwn (obj: Object | Array<*>, key: string): boolean {
 
 /**
  * Create a cached version of a pure function.
+ * 缓存函数fn的执行结果，下次执行如果参数相同，直接返回结果而不用重新执行
  */
 export function cached<F: Function> (fn: F): F {
   const cache = Object.create(null)
@@ -160,6 +163,7 @@ export function cached<F: Function> (fn: F): F {
 
 /**
  * Camelize a hyphen-delimited string.
+ * 变量命名 - 方式转换为驼峰写法，并缓存，下次直接返回结果
  */
 const camelizeRE = /-(\w)/g
 export const camelize = cached((str: string): string => {

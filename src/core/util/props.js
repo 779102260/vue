@@ -18,6 +18,13 @@ type PropOptions = {
   validator: ?Function
 };
 
+/**
+ * 校验prop，并返回其值
+ * @param {*} key prop key
+ * @param {*} propOptions props配置项
+ * @param {*} propsData 
+ * @param {*} vm 
+ */
 export function validateProp (
   key: string,
   propOptions: Object,
@@ -25,13 +32,19 @@ export function validateProp (
   vm?: Component
 ): any {
   const prop = propOptions[key]
+  // propsData是否存在此prop
   const absent = !hasOwn(propsData, key)
   let value = propsData[key]
   // boolean casting
+  // prop可以时boolean类型时，进行处理
   const booleanIndex = getTypeIndex(Boolean, prop.type)
   if (booleanIndex > -1) {
+    // 找不到此prop的值，且未设置默认值，则将值设为false
     if (absent && !hasOwn(prop, 'default')) {
       value = false
+    // 值为‘’或 boolean特殊处理
+    // - prop不存在字符串类型，则将值设为true
+    // - 存在字符串类型，但boolen类型更靠前，则将值设为true
     } else if (value === '' || value === hyphenate(key)) {
       // only cast empty string / same name to boolean if
       // boolean has higher priority
@@ -41,11 +54,15 @@ export function validateProp (
       }
     }
   }
+
   // check default value
+  // 无值获取默认值
   if (value === undefined) {
+    // 默认值
     value = getPropDefaultValue(vm, prop, key)
     // since the default value is a fresh copy,
     // make sure to observe it.
+    // 对新值进行观察
     const prevShouldObserve = shouldObserve
     toggleObserving(true)
     observe(value)
@@ -56,6 +73,7 @@ export function validateProp (
     // skip validation for weex recycle-list child component props
     !(__WEEX__ && isObject(value) && ('@binding' in value))
   ) {
+    // 自定义校验
     assertProp(prop, key, value, vm, absent)
   }
   return value
@@ -63,13 +81,16 @@ export function validateProp (
 
 /**
  * Get the default value of a prop.
+ * 获取prop默认值
  */
 function getPropDefaultValue (vm: ?Component, prop: PropOptions, key: string): any {
   // no default, return undefined
   if (!hasOwn(prop, 'default')) {
     return undefined
   }
+  // 默认值，函数
   const def = prop.default
+  // 值是引用类型是必须是函数
   // warn against non-factory defaults for Object & Array
   if (process.env.NODE_ENV !== 'production' && isObject(def)) {
     warn(
@@ -81,6 +102,7 @@ function getPropDefaultValue (vm: ?Component, prop: PropOptions, key: string): a
   }
   // the raw prop value was also undefined from previous render,
   // return previous default value to avoid unnecessary watcher trigger
+  // TODO
   if (vm && vm.$options.propsData &&
     vm.$options.propsData[key] === undefined &&
     vm._props[key] !== undefined
@@ -89,6 +111,7 @@ function getPropDefaultValue (vm: ?Component, prop: PropOptions, key: string): a
   }
   // call factory function for non-Function types
   // a value is Function if its prototype is function even across different execution context
+  // 获取值
   return typeof def === 'function' && getType(prop.type) !== 'Function'
     ? def.call(vm)
     : def
@@ -96,6 +119,7 @@ function getPropDefaultValue (vm: ?Component, prop: PropOptions, key: string): a
 
 /**
  * Assert whether a prop is valid.
+ * 自定义校验
  */
 function assertProp (
   prop: PropOptions,
@@ -178,12 +202,18 @@ function assertType (value: any, type: Function): {
  * Use function string name to check built-in types,
  * because a simple equality check will fail when running
  * across different vms / iframes.
+ * 通过类型对象（Array Object Boolean）判断类型
  */
 function getType (fn) {
   const match = fn && fn.toString().match(/^\s*function (\w+)/)
   return match ? match[1] : ''
 }
 
+/**
+ * 是否类型相同
+ * @param {*} a 
+ * @param {*} b 
+ */
 function isSameType (a, b) {
   return getType(a) === getType(b)
 }

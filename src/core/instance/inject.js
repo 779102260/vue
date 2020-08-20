@@ -14,9 +14,9 @@ export function initProvide (vm: Component) {
 }
 
 export function initInjections (vm: Component) {
-  // 获取注入字段的值
+  // 获取注入字段和值
   const result = resolveInject(vm.$options.inject, vm)
-  // 添加数据变化监听
+  // 添加到vm上，并监听变化
   if (result) {
     // TODO
     toggleObserving(false)

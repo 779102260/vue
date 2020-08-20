@@ -9,6 +9,7 @@ export const unicodeRegExp = /a-zA-Z\u00B7\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u037
 
 /**
  * Check if a string starts with $ or _
+ * 检查字符串是否以$ _开头
  */
 export function isReserved (str: string): boolean {
   const c = (str + '').charCodeAt(0)
@@ -29,6 +30,8 @@ export function def (obj: Object, key: string, val: any, enumerable?: boolean) {
 
 /**
  * Parse simple path.
+ * 返回一个通过路径取对象的函数：该函数接受一个对象，返回path路径下的值
+ * TODO 写个放到kso-util
  */
 const bailRE = new RegExp(`[^${unicodeRegExp.source}.$_\\d]`)
 export function parsePath (path: string): any {

@@ -23,6 +23,10 @@ let uid = 0
  * and fires callback when the expression value changes.
  * This is used for both the $watch() api and directives.
  */
+/**
+ * 观察者
+ * expression 结果变化时，调用cb
+ */
 export default class Watcher {
   vm: Component;
   expression: string;
@@ -42,9 +46,17 @@ export default class Watcher {
   getter: Function;
   value: any;
 
+  /**
+   * 
+   * @param {*} vm 
+   * @param {*} expOrFn 函数或字符串（对象的路径，主要给watch用）
+   * @param {*} cb 回调函数
+   * @param {*} options 配置项
+   * @param {*} isRenderWatcher 
+   */
   constructor (
     vm: Component,
-    expOrFn: string | Function,
+    expOrFn: string | Function, 
     cb: Function,
     options?: ?Object,
     isRenderWatcher?: boolean
@@ -53,33 +65,51 @@ export default class Watcher {
     if (isRenderWatcher) {
       vm._watcher = this
     }
+    // 实例_watchers加入此watcher
     vm._watchers.push(this)
     // options
+    // TODO
     if (options) {
+      // TODO
       this.deep = !!options.deep
+      // TODO
       this.user = !!options.user
+      // TODO
       this.lazy = !!options.lazy
+      // TODO
       this.sync = !!options.sync
+      // TODO
       this.before = options.before
     } else {
       this.deep = this.user = this.lazy = this.sync = false
     }
+    // TODO
     this.cb = cb
     this.id = ++uid // uid for batching
+    // TODO
     this.active = true
+    // TODO
     this.dirty = this.lazy // for lazy watchers
-    this.deps = []
-    this.newDeps = []
-    this.depIds = new Set()
+    // TODO
+    this.deps = [] // 上次的依赖
+    // TODO
+    this.newDeps = [] // 本次的依赖
+    // TODO
+    this.depIds = new Set() // 依赖的id
+    // TODO
     this.newDepIds = new Set()
+    // TODO
     this.expression = process.env.NODE_ENV !== 'production'
       ? expOrFn.toString()
       : ''
-    // parse expression for getter
+    // parse expression for getter 解析getter
+    // TODO
     if (typeof expOrFn === 'function') {
       this.getter = expOrFn
     } else {
+      // getter: 获取对象expOrFn的值
       this.getter = parsePath(expOrFn)
+      // 不符合规则时parsePath返回空
       if (!this.getter) {
         this.getter = noop
         process.env.NODE_ENV !== 'production' && warn(
@@ -90,6 +120,8 @@ export default class Watcher {
         )
       }
     }
+    // lazy 时不取值
+    // TODO 作用
     this.value = this.lazy
       ? undefined
       : this.get()
@@ -97,12 +129,16 @@ export default class Watcher {
 
   /**
    * Evaluate the getter, and re-collect dependencies.
+   * 执行getter，收集依赖
    */
   get () {
+    // Dep.target 推入当前 watcher
+    // TODO 作用
     pushTarget(this)
     let value
     const vm = this.vm
     try {
+      // 调用getter，这个过程中对data等的调用，就会收集到这个watcher
       value = this.getter.call(vm, vm)
     } catch (e) {
       if (this.user) {
@@ -113,10 +149,14 @@ export default class Watcher {
     } finally {
       // "touch" every property so they are all tracked as
       // dependencies for deep watching
+      // 收集对象或数组其所有深度的依赖id，保存在traverse.js模块的seenObjects对象中
+      // TODO 作用
       if (this.deep) {
         traverse(value)
       }
+      // 推出
       popTarget()
+      // 依赖更新，清除不必要的订阅 TODO
       this.cleanupDeps()
     }
     return value
@@ -127,9 +167,12 @@ export default class Watcher {
    */
   addDep (dep: Dep) {
     const id = dep.id
+    // newDepIds记录dep添加的watcher，用于检测是否已被添加，比遍历快
+    // 本次没有添加过此依赖，加入记录
     if (!this.newDepIds.has(id)) {
       this.newDepIds.add(id)
       this.newDeps.push(dep)
+      // 上次如果添加过此依赖，不再重复收集此watcher
       if (!this.depIds.has(id)) {
         dep.addSub(this)
       }
@@ -163,7 +206,7 @@ export default class Watcher {
    */
   update () {
     /* istanbul ignore else */
-    if (this.lazy) {
+    if (this.lazy) { // computed 等重新置为dirty状态
       this.dirty = true
     } else if (this.sync) {
       this.run()
@@ -206,6 +249,7 @@ export default class Watcher {
   /**
    * Evaluate the value of the watcher.
    * This only gets called for lazy watchers.
+   * 执行get，只有lazy watcher才会调用
    */
   evaluate () {
     this.value = this.get()
@@ -214,6 +258,7 @@ export default class Watcher {
 
   /**
    * Depend on all deps collected by this watcher.
+   * 所有依赖收集器收集此watcher
    */
   depend () {
     let i = this.deps.length

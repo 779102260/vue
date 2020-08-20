@@ -54,6 +54,7 @@ export function toRawType (value: any): string {
 /**
  * Strict object type check. Only returns true
  * for plain JavaScript objects.
+ * 纯对象
  */
 export function isPlainObject (obj: any): boolean {
   return _toString.call(obj) === '[object Object]'
@@ -179,6 +180,7 @@ export const capitalize = cached((str: string): string => {
 
 /**
  * Hyphenate a camelCase string.
+ * 驼峰转连字
  */
 const hyphenateRE = /\B([A-Z])/g
 export const hyphenate = cached((str: string): string => {

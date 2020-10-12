@@ -104,8 +104,10 @@ export default class Watcher {
       : ''
     // parse expression for getter 解析getter
     // TODO
+    // computed时getter时函数
     if (typeof expOrFn === 'function') {
       this.getter = expOrFn
+      // watch时getter是字符串（getter执行获取的是vm上的属性值）
     } else {
       // getter: 获取对象expOrFn的值
       this.getter = parsePath(expOrFn)
@@ -208,9 +210,9 @@ export default class Watcher {
     /* istanbul ignore else */
     if (this.lazy) { // computed 等重新置为dirty状态
       this.dirty = true
-    } else if (this.sync) {
+    } else if (this.sync) { // TODO
       this.run()
-    } else {
+    } else { // TODO 插入vue调度队列之类的，估计异步更新、nextTick依赖于此
       queueWatcher(this)
     }
   }

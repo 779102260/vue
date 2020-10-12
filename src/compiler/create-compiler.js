@@ -5,11 +5,18 @@ import { detectErrors } from './error-detector'
 import { createCompileToFunctionFn } from './to-function'
 
 export function createCompilerCreator (baseCompile: Function): Function {
+  
   return function createCompiler (baseOptions: CompilerOptions) {
+    /**
+     * template -> render
+     * @param {*} template 模板
+     * @param {*} options 配置项
+     */
     function compile (
       template: string,
       options?: CompilerOptions
     ): CompiledResult {
+      // 重新构建后的options
       const finalOptions = Object.create(baseOptions)
       const errors = []
       const tips = []
@@ -19,8 +26,10 @@ export function createCompilerCreator (baseCompile: Function): Function {
       }
 
       if (options) {
+        // outputSourceRange 
         if (process.env.NODE_ENV !== 'production' && options.outputSourceRange) {
           // $flow-disable-line
+          // 
           const leadingSpaceLength = template.match(/^\s*/)[0].length
 
           warn = (msg, range, tip) => {
@@ -37,11 +46,13 @@ export function createCompilerCreator (baseCompile: Function): Function {
           }
         }
         // merge custom modules
+        // modules 合并 TODO modules ？
         if (options.modules) {
           finalOptions.modules =
             (baseOptions.modules || []).concat(options.modules)
         }
         // merge custom directives
+        // 指令 合并 TODO 
         if (options.directives) {
           finalOptions.directives = extend(
             Object.create(baseOptions.directives || null),

@@ -80,6 +80,7 @@ export function renderMixin (Vue: Class<Component>) {
     // step1. 拿到render函数（配置或根据模板生成的）
     const { render, _parentVnode } = vm.$options
 
+    // TODO
     if (_parentVnode) {
       vm.$scopedSlots = normalizeScopedSlots(
         _parentVnode.data.scopedSlots,

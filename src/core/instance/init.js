@@ -60,19 +60,19 @@ export function initMixin (Vue: Class<Component>) {
     vm._self = vm
     // part3-2 生命周期：添加一些相关属性
     initLifecycle(vm)
-    // part3-3 事件 [TODO:]
+    // part3-3 事件
     initEvents(vm)
-    // part3-4 render: 添加$createElement等方法 [TODO:]
+    // part3-4 render: 添加$createElement等方法
     initRender(vm)
-    // 触发生命周期：beforeCreate [TODO:]
+    // 触发生命周期：beforeCreate
     callHook(vm, 'beforeCreate')
-    // part3-5 inject: 拿到inject数据 [TODO:]
+    // part3-5 inject: 拿到inject数据
     initInjections(vm) // resolve injections before data/props
-    // part3-6 state: props -> methods -> data -> computed -> watch [TODO:]
+    // part3-6 state: props -> methods -> data -> computed -> watch
     initState(vm)
-    // part3-7 provide：[TODO:]
-    initProvide(vm) // resolve provide after data/props
-    // 触发生命周期：created [TODO:]
+    // part3-7 provide
+    initProvide(vm) // TODO resolve provide after data/props
+    // 触发生命周期：created
     callHook(vm, 'created')
     // ===================================================================================================================
 

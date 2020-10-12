@@ -33,10 +33,12 @@ export const isSVG = makeMap(
 
 export const isPreTag = (tag: ?string): boolean => tag === 'pre'
 
+// 保留标签（不能作为组件名）
 export const isReservedTag = (tag: string): ?boolean => {
   return isHTMLTag(tag) || isSVG(tag)
 }
 
+// tag类别
 export function getTagNamespace (tag: string): ?string {
   if (isSVG(tag)) {
     return 'svg'

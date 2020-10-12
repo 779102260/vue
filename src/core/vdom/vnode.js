@@ -2,7 +2,7 @@
 
 export default class VNode {
   tag: string | void;
-  data: VNodeData | void;
+  data: VNodeData | void; // 数据对象
   children: ?Array<VNode>;
   text: string | void;
   elm: Node | void;
@@ -78,6 +78,10 @@ export const createEmptyVNode = (text: string = '') => {
   return node
 }
 
+/**
+ * 创建文本虚拟节点，文本虚拟节点只有vnode.text有值
+ * @param {*} val 
+ */
 export function createTextVNode (val: string | number) {
   return new VNode(undefined, undefined, undefined, String(val))
 }

@@ -13,7 +13,9 @@ const idToTemplate = cached(id => {
   const el = query(id)
   return el && el.innerHTML
 })
-
+/**
+ * 重写了$mount方法，在挂载前进行模板编译（template -> render）
+ */
 const mount = Vue.prototype.$mount
 Vue.prototype.$mount = function (
   el?: string | Element,
@@ -34,10 +36,15 @@ Vue.prototype.$mount = function (
   // step2. 无render则将模板提取出来，提取为dom节点
   // vue代码需要的是render函数，template是为了方便开发写的，所以这里需要将template转换为render函数
   if (!options.render) {
+    // template的写法：
+    // 1. dom选择器
+    // 2. dom节点对象
+    // 3. 字符串模板
     let template = options.template
     // step2-1. 配置了template
-    // 写法1：template写在html里，则这里的template是对应的dom选择器
     if (template) {
+      // 写法1：template写在html里，则这里的template是对应的dom选择器
+      // 获取选择器对应的dom
       if (typeof template === 'string') {
         if (template.charAt(0) === '#') {
           template = idToTemplate(template)

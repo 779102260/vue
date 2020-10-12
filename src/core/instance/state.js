@@ -228,6 +228,7 @@ function initComputed (vm: Component, computed: Object) {
       // 创建该监听属性的lazy watcher
       // lazy: watcher不会立马执行getter，在需要时才执行，并收集此依赖
       // 即computed属性在调用时，才收集
+      // TODO 应该大部分watcher都是如此，有需要立马执行的getter?
       watchers[key] = new Watcher(
         vm,
         getter || noop,
@@ -374,10 +375,12 @@ function createWatcher (
   handler: any,
   options?: Object
 ) {
+  // 配置为对象时参数处理
   if (isPlainObject(handler)) {
     options = handler
     handler = handler.handler
   }
+  // 为字符串时（表示函数名）处理
   if (typeof handler === 'string') {
     handler = vm[handler]
   }
@@ -416,12 +419,20 @@ export function stateMixin (Vue: Class<Component>) {
     options?: Object
   ): Function {
     const vm: Component = this
+    // handler可能是个函数数组，递归
     if (isPlainObject(cb)) {
       return createWatcher(vm, expOrFn, cb, options)
     }
     options = options || {}
+    // TODO user 配置的作用 ? 
     options.user = true
+    // watcher
+    // 创建watcher时会调用vm上对应的属性
+    // 这个过程中watcher被推入到Dep.target上
+    // 那么过程中使用data等时就会收集到此watcher
+    // 然后执行watch函数，后续data变化会主动执行watch函数
     const watcher = new Watcher(vm, expOrFn, cb, options)
+    // immediate 则立即执行函数
     if (options.immediate) {
       try {
         cb.call(vm, watcher.value)
@@ -429,6 +440,7 @@ export function stateMixin (Vue: Class<Component>) {
         handleError(error, vm, `callback for immediate watcher "${watcher.expression}"`)
       }
     }
+    // 选项watcher的方法
     return function unwatchFn () {
       watcher.teardown()
     }

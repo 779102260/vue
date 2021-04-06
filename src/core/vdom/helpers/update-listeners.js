@@ -98,7 +98,7 @@ export function updateListeners (
       )
     // 旧事件如果不存在，创建事件值
     } else if (isUndef(old)) {
-      if (isUndef(cur.fns)) { // fns存的是事件真是执行的方法
+      if (isUndef(cur.fns)) { // fns存的是事件执行的方法
         cur = on[name] = createFnInvoker(cur, vm)
       }
       if (isTrue(event.once)) { // once

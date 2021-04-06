@@ -480,6 +480,7 @@ export function mergeOptions (
  * Resolve an asset.
  * This function is used because child instances need access
  * to assets defined in its ancestor chain.
+ * 从options及上级options查找配置 options[type][id]
  */
 export function resolveAsset (
   options: Object,

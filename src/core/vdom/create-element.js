@@ -144,9 +144,9 @@ export function _createElement (
         config.parsePlatformTagName(tag), data, children,
         undefined, undefined, context
       )
-      // 创建组件vnode NOTE here
+      // 创建组件vnode (先去查找组件)
     } else if ((!data || !data.pre) && isDef(Ctor = resolveAsset(context.$options, 'components', tag))) {
-      // component
+      // component TODO 创建组件先跳过
       vnode = createComponent(Ctor, data, context, children, tag)
     } else {
       // unknown or unlisted namespaced elements
@@ -161,6 +161,7 @@ export function _createElement (
     // direct component options / constructor
     vnode = createComponent(tag, data, context, children)
   }
+  // TODO 
   if (Array.isArray(vnode)) {
     return vnode
   } else if (isDef(vnode)) {
